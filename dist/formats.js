@@ -3,8 +3,18 @@
 Object.defineProperty(exports, "__esModule", {
     value: true
 });
-// NormalFormat
-// http://www.gnu.org/software/diffutils/manual/html_node/Example-Normal.html#Example-Normal
+/**
+ * Output format functions for myers diff.
+ * @module formats
+ * @typicalname formats
+ */
+
+/**
+ * Output a `Change` in
+ * [GNU normal format](http://www.gnu.org/software/diffutils/manual/html_node/Example-Normal.html#Example-Normal).
+ * @param {module:myers~Change} change - The change to output.
+ * @return {string} The diff in GNU normal format.
+ */
 function _GnuNormalFormat(item) {
     var i,
         nf = [],

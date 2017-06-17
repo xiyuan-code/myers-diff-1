@@ -1,6 +1,7 @@
 import fs from 'fs';
 import chai from 'chai';
-import myers from '../dist';
+import myers from '../src';
+
 
 const expect = chai.expect,
     diff = myers.diff,
@@ -348,5 +349,29 @@ describe('#diff', function() {
         expect(change.rhs.at).to.equal(21);
         expect(change.rhs.add).to.be.equal(0);
 
+    });
+});
+
+describe('#diff', function() {
+    it('ignores whitespace', function() {
+        var changes = diff(
+            'the quick red fox jumped',
+            'the quick   red fox    jumped', {
+               ignoreWhitespace: true
+            }
+        );
+        expect(changes.length).to.equal(0);
+    });
+});
+
+describe('#diff', function() {
+    it('does not ignore whitespace', function() {
+        var changes = diff(
+            'the quick red fox jumped',
+            'the quick   red fox    jumped', {
+               ignoreWhitespace: false
+            }
+        );
+        expect(changes.length).to.equal(1);
     });
 });

@@ -1,5 +1,87 @@
 /**
+ * A javascript test differentiation implementation based on 
+ * [An O(ND) Difference Algorithm and Its Variations (1986)](https://github.com/wickedest/myers-diff/blob/master/www.xmailserver.org/diff2.pdf).
+ * It is a lightweight, no-frills diff API that can be used as a library when building a more
+ * functional higher-level components, such as command-line tools, or diff viewers.
+ * @module myers
+ * @typicalname myers
+ *
+ * @example <caption>diff and output GNU normal format</caption>
+ * ```javascript
+ *    const myers = require('myers-diff').default;
+ *
+ *    const lhs = 'the quick red fox jumped\nover the hairy dog';
+ *    const rhs = 'the quick brown fox jumped\nover the lazy dog';
+ *    const diff = myers.diff(lhs, rhs, {});
+ *    console.log(myers.formats.GnuNormalFormat(diff));
+ *
+ *    //
+ *    // 1,2c1,2
+ *    // < the quick red fox jumped
+ *    // < over the hairy dog
+ *    // ---
+ *    // > the quick brown fox jumped
+ *    // > over the lazy dog
+ * ```
+ * @example <caption>using the API</caption>
+ * ```javascript
+ *    const myers = require('myers-diff').default;
+ *
+ *    const lhs = 'the quick red fox jumped\nover the hairy dog';
+ *    const rhs = 'the quick brown fox jumped\nover the lazy dog';
+ *    const diff = myers.diff(lhs, rhs, {});
+ *
+ *    for (change of diff) {
+ *        let op;
+ *        if (change.lhs.del === 0 && change.rhs.add > 0) {
+ *            op = 'inserted:';
+ *        } else if (change.lhs.del > 0 && change.rhs.add === 0) {
+ *            op = 'removed:';
+ *        } else {
+ *            op = 'changed:';
+ *        }
+ *        for (let i = change.lhs.at; i < change.lhs.at + change.lhs.del; i++) {
+ *            console.log(op, change.lhs.ctx.getLine(i));
+ *        }
+ *        for (let i = change.rhs.at; i < change.rhs.at + change.rhs.add; i++) {
+ *            console.log(op, change.rhs.ctx.getLine(i));
+ *        }
+ *    }
+ *    // changed: the quick red fox jumped
+ *    // changed: over the hairy dog
+ *    // changed: the quick brown fox jumped
+ *    // changed: over the lazy dog
+ * ```
+ */
+
+/**
+ * A change that describes the difference between the left-hand side and right-hand side.
+ * @typedef {object} Change
+ * @property {module:myers~ChangeLhs} lhs - The left-hand side change.
+ * @property {module:myers~ChangeRhs} rhs - The right-hand side change.
+ */
+
+/**
+ * A left-hand side change.
+ * @typedef {object} ChangeLhs
+ * @property {number} at - The zero-based line index where the change occurred.
+ * @property {number} del - The non-negative count of lines that were removed from `at`.
+ * @property {module:myers~EncodeContext} ctx - The encode context.
+ */
+
+/**
+ * A right-hand side change.
+ * @typedef {object} ChangeRhs
+ * @property {number} at - The zero-based line index where the change occurred.
+ * @property {number} add - The non-negative count of lines that were added to `at`.
+ * @property {module:myers~EncodeContext} ctx - The encode context.
+ */
+
+
+/**
  * Encodes text into diff-codes to prepare for Myers diff.
+ * @class
+ * @private
  */
 class Encoder {
     constructor () {
@@ -15,10 +97,6 @@ class Encoder {
         return this.diff_codes[line];
     }
 
-    hasKey (line) {
-        return this.diff_codes.hasOwnProperty(line);
-    }
-
     getCodes () {
         return this.diff_codes;
     }
@@ -32,21 +110,13 @@ class Encoder {
 
 /**
  * Encoder context
+ * @class
  */
 class EncodeContext {
 
-    constructor (encoder, text, settings) {
+    constructor(encoder, text, settings) {
         let lines, re;
         if (text && text.length) {
-            if (encoder === undefined) {
-                throw new Error('illegal argument \'encoder\'');
-            }
-            if (text === undefined) {
-                throw new Error('illegal argument \'text\'');
-            }
-            if (settings === undefined) {
-                throw new Error('illegal argument \'settings\'');
-            }
             if (settings.compare === 'chars') {
                 // split all chars
                 re = new RegExp(settings.splitCharsRegex, "g");
@@ -67,19 +137,28 @@ class EncodeContext {
         this._init(encoder, lines, settings);
     }
 
-    get codes () {
+    get codes() {
         return this._codes;
     }
 
-    get length () {
+    /**
+     * Gets number of lines.
+     * @return {number} Number of lines of text.
+     */
+    get length() {
         return Object.keys(this._codes).length;
     }
 
-    get modified () {
+    get modified() {
         return this._modified;
     }
 
-    getLine (n) {
+    /**
+     * Gets a line.
+     * @param {integer} n - The line number to get.
+     * @return {string} Line of text.
+     */
+    getLine(n) {
         if (!this._codes.hasOwnProperty(n)) {
             return;
         }
@@ -94,7 +173,7 @@ class EncodeContext {
         }
     }
 
-    _init (encoder, lines, settings) {
+    _init(encoder, lines, settings) {
         this.encoder = encoder;
         this._codes = {};
         this._modified = {};
@@ -120,7 +199,7 @@ class EncodeContext {
 }
 
 export default class Myers {
-    static compare_lcs (
+    static compare_lcs(
         lhs_modified, lhs_codes, lhs_codes_length,
         rhs_modified, rhs_codes, rhs_codes_length,
         callback
@@ -162,7 +241,7 @@ export default class Myers {
             }
         }
     }
-    static getShortestMiddleSnake (
+    static getShortestMiddleSnake(
         lhs_codes, lhs_codes_length, lhs_lower, lhs_upper,
         rhs_codes, rhs_codes_length, rhs_lower, rhs_upper,
         vector_u, vector_d
@@ -239,7 +318,7 @@ export default class Myers {
         throw new Error('unexpected state');
     }
 
-    static getLongestCommonSubsequence (
+    static getLongestCommonSubsequence(
         lhs_modified, lhs_codes, lhs_codes_length, lhs_lower, lhs_upper,
         rhs_modified, rhs_codes, rhs_codes_length, rhs_lower, rhs_upper,
         vector_u, vector_d
@@ -323,15 +402,22 @@ export default class Myers {
     }
 
     /**
-     * Compare {@code lhs} to {@code rhs}.  Changes are compared from left
-     * to right such that items are deleted from left, or added to right,
-     * or just otherwise changed between them.
+     * Compare `lhs` to `lhs.  Changes are compared from left to right such that items are
+     * deleted from the left, or added to the right, or just otherwise changed between them.
      * 
-     * @param   {String} lhs        The left-hand source text.
-     * @param   {String} rhs        The right-hand source text.
-     * @param   {Object} options    Optional settings.
+     * @param   {string} lhs        The left-hand source text.
+     * @param   {string} rhs        The right-hand source text.
+     * @param   {object} options
+     * @param   {string} options.compare            One of lines (default), words, chars.
+     * @param   {boolean} options.ignoreWhitespace  Ignores whitespace (default: false).
+     * @param   {string} options.splitLinesRegex    Splits lines on this regex (default `\n`).
+     * @param   {string} options.splitWordsRegex    Splits words on this regex (default `[ ]{1}`),
+     * @param   {string} options.splitCharsRegex    Splits chars on this regex (default ``);
+     *
+     * @return {module:myers~Change[]} A list of changes.
+     * @public
      */
-    static diff (lhs, rhs, options) {
+    static diff(lhs, rhs, options) {
         const settings = Myers._getDefaultSettings(),
             encoder = new Encoder();
 

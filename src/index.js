@@ -3,5 +3,5 @@ import formats from './formats';
 
 export default {
     diff: Myers.diff,
-    formats: formats
-}
+    formats
+};
