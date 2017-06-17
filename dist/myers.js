@@ -65,7 +65,14 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
  */
 
 /**
- * A change that describes the difference between the left-hand side and right-hand side.
+ * A change that describes the difference between the left-hand side and right-hand side. 
+ * Interpreting a `Change` item is as follows:
+ *
+ * |del|add|description|
+ * |-----|-----|----|
+ * |0|>0|added `count` to rhs|
+ * |>0|0|deleted `count` from lhs|
+ * |>0|>0|changed `count` lines|
  * @typedef {object} Change
  * @property {module:myers~ChangeLhs} lhs - The left-hand side change.
  * @property {module:myers~ChangeRhs} rhs - The right-hand side change.
