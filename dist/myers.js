@@ -72,7 +72,12 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
  */
 
 /**
- * A left-hand side change.
+ * A left-hand side change.  Interpret the change as follows:
+ *
+ * |del|description|
+ * |---|-----------|
+ * |>0|deleted `count` from lhs|
+ * |>0|changed `count` lines|
  * @typedef {object} ChangeLhs
  * @property {number} at - The zero-based line index where the change occurred.
  * @property {number} del - The non-negative count of lines that were removed from `at`.
@@ -80,7 +85,12 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
  */
 
 /**
- * A right-hand side change.
+ * A right-hand side change.  Interpret the change as follows:
+ *
+ * |add|description|
+ * |---|-----------|
+ * |>0|added `count` to rhs|
+ * |>0|changed `count` lines|
  * @typedef {object} ChangeRhs
  * @property {number} at - The zero-based line index where the change occurred.
  * @property {number} add - The non-negative count of lines that were added to `at`.
@@ -420,7 +430,7 @@ var Myers = function () {
          * 
          * @param   {string} lhs        The left-hand source text.
          * @param   {string} rhs        The right-hand source text.
-         * @param   {object} options
+         * @param   {object} [options]
          * @param   {string} options.compare            One of lines (default), words, chars.
          * @param   {boolean} options.ignoreWhitespace  Ignores whitespace (default: false).
          * @param   {string} options.splitLinesRegex    Splits lines on this regex (default `\n`).

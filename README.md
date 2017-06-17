@@ -71,7 +71,7 @@ functional higher-level components, such as command-line tools, or diff viewers.
 ```
 <a name="module_myers.diff"></a>
 
-### myers.diff(lhs, rhs, options) ⇒ [<code>Array.&lt;Change&gt;</code>](#module_myers..Change)
+### myers.diff(lhs, rhs, [options]) ⇒ [<code>Array.&lt;Change&gt;</code>](#module_myers..Change)
 Compare `lhs` to `lhs.  Changes are compared from left to right such that items are
 deleted from the left, or added to the right, or just otherwise changed between them.
 
@@ -83,7 +83,7 @@ deleted from the left, or added to the right, or just otherwise changed between 
 | --- | --- | --- |
 | lhs | <code>string</code> | The left-hand source text. |
 | rhs | <code>string</code> | The right-hand source text. |
-| options | <code>object</code> |  |
+| [options] | <code>object</code> |  |
 | options.compare | <code>string</code> | One of lines (default), words, chars. |
 | options.ignoreWhitespace | <code>boolean</code> | Ignores whitespace (default: false). |
 | options.splitLinesRegex | <code>string</code> | Splits lines on this regex (default `\n`). |
@@ -136,7 +136,12 @@ A change that describes the difference between the left-hand side and right-hand
 <a name="module_myers..ChangeLhs"></a>
 
 ### myers~ChangeLhs : <code>object</code>
-A left-hand side change.
+A left-hand side change.  Interpret the change as follows:
+
+|del|description|
+|---|-----------|
+|>0|deleted `count` from lhs|
+|>0|changed `count` lines|
 
 **Kind**: inner typedef of [<code>myers</code>](#module_myers)  
 **Properties**
@@ -150,7 +155,12 @@ A left-hand side change.
 <a name="module_myers..ChangeRhs"></a>
 
 ### myers~ChangeRhs : <code>object</code>
-A right-hand side change.
+A right-hand side change.  Interpret the change as follows:
+
+|add|description|
+|---|-----------|
+|>0|added `count` to rhs|
+|>0|changed `count` lines|
 
 **Kind**: inner typedef of [<code>myers</code>](#module_myers)  
 **Properties**
